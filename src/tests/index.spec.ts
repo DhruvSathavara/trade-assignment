@@ -70,5 +70,14 @@ describe("Basic tests", () => {
     expect(res.body.balances["USD"]).toBe(50000 + 2 * 1400.9);
   })
 
+  it("asking quotation", async () => {
+    let res = await request(app).get("/quote/").send({
+      side: "bid",
+    });
+
+    // expect(res.body.avgPrice).toBe(1400.1);
+    expect(res.body.avgPrice).toBe(1450.95);
+  });
+
 })
 

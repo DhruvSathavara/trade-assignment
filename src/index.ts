@@ -122,7 +122,27 @@ app.get("/balance/:userId", (req, res) => {
 })
 
 app.get("/quote", (req, res) => {
-  // TODO: Assignment
+  const side: string = req.body.side;
+  let totalSum: number = 0;
+
+  if (side === "bid") {
+    for (let i = 0; i < asks.length; i++) {
+      totalSum += asks[i].price;
+    }
+    const avgPrice = totalSum / asks.length;
+    res.json({
+      avgPrice
+    })
+
+  } else {
+    for (let i = 0; i < bids.length; i++) {
+      totalSum += bids[i].price;
+    }
+    const avgPrice: number = totalSum / bids.length;
+    res.json({
+        avgPrice
+    })
+  }
 });
 
 function flipBalance(userId1: string, userId2: string, quantity: number, price: number) {
@@ -144,14 +164,17 @@ function fillOrders(side: string, price: number, quantity: number, userId: strin
       if (asks[i].price > price) {
         continue;
       }
+
       if (asks[i].quantity > remainingQuantity) {
         asks[i].quantity -= remainingQuantity;
         flipBalance(asks[i].userId, userId, remainingQuantity, asks[i].price);
         return 0;
+        
       } else {
         remainingQuantity -= asks[i].quantity;
         flipBalance(asks[i].userId, userId, asks[i].quantity, asks[i].price);
-        asks.pop();
+        // asks.pop();
+        asks.splice(i,1);
       }
     }
   } else {
@@ -161,12 +184,13 @@ function fillOrders(side: string, price: number, quantity: number, userId: strin
       }
       if (bids[i].quantity > remainingQuantity) {
         bids[i].quantity -= remainingQuantity;
-        flipBalance(userId, bids[i].userId, remainingQuantity, price);
+        flipBalance(userId, bids[i].userId, remainingQuantity, bids[i].price);
         return 0;
       } else {
         remainingQuantity -= bids[i].quantity;
-        flipBalance(userId, bids[i].userId, bids[i].quantity, price);
-        bids.pop();
+        flipBalance(userId, bids[i].userId, bids[i].quantity, bids[i].price);
+        // bids.pop();
+        bids.splice(i,1);
       }
     }
   }
